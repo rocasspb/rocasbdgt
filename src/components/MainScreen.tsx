@@ -15,6 +15,7 @@ import {
 import { format } from 'date-fns';
 import { Account } from '../types/Account';
 import { Balance } from '../types/Balance';
+import PortfolioChart from './PortfolioChart';
 
 interface MainScreenProps {
     accounts: Account[];
@@ -26,7 +27,7 @@ interface MainScreenProps {
 export default function MainScreen({ accounts, balances, onNavigateToAccounts, onEnterBalances }: MainScreenProps) {
     // Group balances by date
     const balancesByDate = balances.reduce((acc, balance) => {
-        const date = balance.date.split('T')[0]; // Get just the date part
+        const date = balance.date.split('T')[0];
         if (!acc[date]) {
             acc[date] = {};
         }
@@ -41,6 +42,19 @@ export default function MainScreen({ accounts, balances, onNavigateToAccounts, o
     const formatDate = (dateStr: string) => {
         return format(new Date(dateStr), 'dd/MM/yyyy');
     };
+
+    // Prepare data for the chart (in ascending order for better visualization)
+    const chartData = dates.slice().reverse().map(date => {
+        const rowBalances = balancesByDate[date];
+        const total = accounts.reduce(
+            (sum, account) => sum + (rowBalances[account.id] || 0),
+            0
+        );
+        return {
+            date: formatDate(date),
+            total
+        };
+    });
 
     return (
         <Container maxWidth="md" sx={{ py: 4 }}>
@@ -63,6 +77,8 @@ export default function MainScreen({ accounts, balances, onNavigateToAccounts, o
                     </Button>
                 </Stack>
             </Stack>
+
+            <PortfolioChart data={chartData} />
 
             <TableContainer component={Paper} sx={{ mb: 4 }}>
                 <Table>
