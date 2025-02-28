@@ -18,6 +18,8 @@ import { Account } from '../types/Account';
 import { Balance } from '../types/Balance';
 import PortfolioChart from './PortfolioChart';
 import EditIcon from '@mui/icons-material/Edit';
+import DownloadIcon from '@mui/icons-material/Download';
+import UploadIcon from '@mui/icons-material/Upload';
 
 interface MainScreenProps {
     accounts: Account[];
@@ -25,9 +27,10 @@ interface MainScreenProps {
     onNavigateToAccounts: () => void;
     onEnterBalances: () => void;
     onEditBalances: (date: string, values: Record<string, number>) => void;
+    onImportData: (data: { accounts: Account[], balances: Balance[] }) => void;
 }
 
-export default function MainScreen({ accounts, balances, onNavigateToAccounts, onEnterBalances, onEditBalances }: MainScreenProps) {
+export default function MainScreen({ accounts, balances, onNavigateToAccounts, onEnterBalances, onEditBalances, onImportData }: MainScreenProps) {
     // Group balances by date
     const balancesByDate = balances.reduce((acc, balance) => {
         const date = balance.date.split('T')[0];
@@ -59,6 +62,44 @@ export default function MainScreen({ accounts, balances, onNavigateToAccounts, o
         };
     });
 
+    const handleExport = () => {
+        const data = {
+            accounts,
+            balances
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `budget-tracker-export-${format(new Date(), 'yyyy-MM-dd')}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
+    const handleImport = () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'application/json';
+        input.onchange = (e) => {
+            const file = (e.target as HTMLInputElement).files?.[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target?.result as string);
+                        onImportData(data);
+                    } catch (error) {
+                        alert('Invalid file format');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        };
+        input.click();
+    };
+
     return (
         <Container maxWidth="md" sx={{ py: 4 }}>
             <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
@@ -66,6 +107,20 @@ export default function MainScreen({ accounts, balances, onNavigateToAccounts, o
                     Overview
                 </Typography>
                 <Stack direction="row" spacing={2}>
+                    <Button
+                        variant="outlined"
+                        startIcon={<UploadIcon />}
+                        onClick={handleImport}
+                    >
+                        IMPORT
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        startIcon={<DownloadIcon />}
+                        onClick={handleExport}
+                    >
+                        EXPORT
+                    </Button>
                     <Button 
                         variant="outlined"
                         onClick={onNavigateToAccounts}

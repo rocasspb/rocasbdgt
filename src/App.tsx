@@ -53,6 +53,15 @@ function App() {
         setCurrentScreen('main');
     };
 
+    const handleImportData = (data: { accounts: Account[], balances: Balance[] }) => {
+        if (data.accounts && Array.isArray(data.accounts)) {
+            setAccounts(data.accounts);
+        }
+        if (data.balances && Array.isArray(data.balances)) {
+            setBalances(data.balances);
+        }
+    };
+
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
             {currentScreen === 'main' && (
@@ -62,6 +71,7 @@ function App() {
                     onNavigateToAccounts={() => setCurrentScreen('accounts')}
                     onEnterBalances={() => setCurrentScreen('enterBalances')}
                     onEditBalances={handleEditBalances}
+                    onImportData={handleImportData}
                 />
             )}
             {currentScreen === 'accounts' && (
