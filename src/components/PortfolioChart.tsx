@@ -1,10 +1,11 @@
 import React from 'react';
 import { Typography, Paper } from '@mui/material';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 interface ChartDataPoint {
     date: string;
     total: number;
+    ma6?: number;
 }
 
 interface PortfolioChartProps {
@@ -12,10 +13,15 @@ interface PortfolioChartProps {
 }
 
 export default function PortfolioChart({ data }: PortfolioChartProps) {
-    // Calculate min and max values with some padding
-    const minValue = Math.min(...data.map(d => d.total));
-    const maxValue = Math.max(...data.map(d => d.total));
-    const padding = (maxValue - minValue) * 0.1; // 10% padding
+    // Calculate 6-point moving average
+    const dataWithMA = data.map((point, index) => {
+        if (index < 5) {
+            return { ...point, ma6: null };
+        }
+        const last6Points = data.slice(index - 5, index + 1);
+        const ma6 = last6Points.reduce((sum, p) => sum + p.total, 0) / 6;
+        return { ...point, ma6 };
+    });
 
     return (
         <Paper sx={{ p: 3, mb: 4 }}>
@@ -24,25 +30,42 @@ export default function PortfolioChart({ data }: PortfolioChartProps) {
             </Typography>
             <div style={{ width: '100%', height: 300 }}>
                 <ResponsiveContainer>
-                    <LineChart data={data}>
+                    <LineChart data={dataWithMA}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis 
                             dataKey="date" 
                             angle={-45}
                             textAnchor="end"
                             height={60}
+                            style={{ fontSize: '0.75rem' }}
                         />
                         <YAxis 
-                            domain={[minValue - padding, maxValue + padding]}
+                            domain={[
+                                (dataMin: number) => Math.min(dataMin, (dataMin * 0.9)),
+                                (dataMax: number) => Math.max(dataMax, (dataMax * 1.1))
+                            ]}
                             tickFormatter={(value) => value.toFixed(2)}
+                            style={{ fontSize: '0.75rem' }}
                         />
-                        <Tooltip />
+                        <Tooltip 
+                            formatter={(value: number) => value.toFixed(2)}
+                        />
+                        <Legend style={{ fontSize: '0.75rem' }} />
                         <Line 
                             type="monotone" 
                             dataKey="total" 
                             stroke="#2196f3" 
                             strokeWidth={2}
                             dot={false}
+                            name="Total"
+                        />
+                        <Line 
+                            type="monotone" 
+                            dataKey="ma6" 
+                            stroke="#4caf50" 
+                            strokeWidth={2}
+                            dot={false}
+                            name="6-point MA"
                         />
                     </LineChart>
                 </ResponsiveContainer>
