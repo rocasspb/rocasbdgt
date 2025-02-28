@@ -20,10 +20,10 @@ import AccountDialog from './AccountDialog';
 interface AccountsScreenProps {
     accounts: Account[];
     setAccounts: (accounts: Account[]) => void;
-    onEnterBalances: () => void;
+    onBack: () => void;
 }
 
-export default function AccountsScreen({ accounts, setAccounts, onEnterBalances }: AccountsScreenProps) {
+export default function AccountsScreen({ accounts, setAccounts, onBack }: AccountsScreenProps) {
     const [openDialog, setOpenDialog] = useState(false);
     const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
 
@@ -52,14 +52,25 @@ export default function AccountsScreen({ accounts, setAccounts, onEnterBalances 
 
     return (
         <Container maxWidth="md" sx={{ py: 4 }}>
-            <Typography 
-                variant="h4" 
-                component="h1" 
-                gutterBottom 
+            <Stack 
+                direction="row" 
+                justifyContent="space-between" 
+                alignItems="center" 
                 sx={{ mb: 3 }}
             >
-                Accounts
-            </Typography>
+                <Typography 
+                    variant="h4" 
+                    component="h1"
+                >
+                    Accounts
+                </Typography>
+                <Button
+                    variant="outlined"
+                    onClick={onBack}
+                >
+                    BACK
+                </Button>
+            </Stack>
             
             <Button
                 variant="contained"
@@ -118,19 +129,6 @@ export default function AccountsScreen({ accounts, setAccounts, onEnterBalances 
                     </ListItem>
                 ))}
             </List>
-
-            <Button
-                variant="contained"
-                onClick={onEnterBalances}
-                sx={{ 
-                    width: '100%', 
-                    py: 2,
-                    borderRadius: 3,
-                    fontSize: '1.1rem'
-                }}
-            >
-                ENTER BALANCES
-            </Button>
 
             <AccountDialog
                 open={openDialog}
