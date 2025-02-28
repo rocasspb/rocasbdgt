@@ -22,6 +22,8 @@ function App() {
         const saved = localStorage.getItem('balances');
         return saved ? JSON.parse(saved) : [];
     });
+    const [editingDate, setEditingDate] = useState<string | null>(null);
+    const [editingValues, setEditingValues] = useState<Record<string, number>>({});
 
     // Save to localStorage whenever data changes
     useEffect(() => {
@@ -32,8 +34,22 @@ function App() {
         localStorage.setItem('balances', JSON.stringify(balances));
     }, [balances]);
 
+    const handleEditBalances = (date: string, values: Record<string, number>) => {
+        setEditingDate(date);
+        setEditingValues(values);
+        setCurrentScreen('enterBalances');
+    };
+
     const handleSaveBalances = (newBalances: Balance[]) => {
-        setBalances([...balances, ...newBalances]);
+        if (editingDate) {
+            // Remove old balances for this date
+            const filteredBalances = balances.filter(b => b.date.split('T')[0] !== editingDate);
+            setBalances([...filteredBalances, ...newBalances]);
+            setEditingDate(null);
+            setEditingValues({});
+        } else {
+            setBalances([...balances, ...newBalances]);
+        }
         setCurrentScreen('main');
     };
 
@@ -45,6 +61,7 @@ function App() {
                     balances={balances}
                     onNavigateToAccounts={() => setCurrentScreen('accounts')}
                     onEnterBalances={() => setCurrentScreen('enterBalances')}
+                    onEditBalances={handleEditBalances}
                 />
             )}
             {currentScreen === 'accounts' && (
@@ -58,7 +75,13 @@ function App() {
                 <EnterBalancesScreen
                     accounts={accounts}
                     onSave={handleSaveBalances}
-                    onBack={() => setCurrentScreen('main')}
+                    onBack={() => {
+                        setCurrentScreen('main');
+                        setEditingDate(null);
+                        setEditingValues({});
+                    }}
+                    initialDate={editingDate ? new Date(editingDate) : new Date()}
+                    initialValues={editingValues}
                 />
             )}
         </LocalizationProvider>

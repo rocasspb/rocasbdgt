@@ -10,21 +10,24 @@ import {
     TableContainer,
     TableHead,
     TableRow,
-    Stack
+    Stack,
+    IconButton
 } from '@mui/material';
 import { format } from 'date-fns';
 import { Account } from '../types/Account';
 import { Balance } from '../types/Balance';
 import PortfolioChart from './PortfolioChart';
+import EditIcon from '@mui/icons-material/Edit';
 
 interface MainScreenProps {
     accounts: Account[];
     balances: Balance[];
     onNavigateToAccounts: () => void;
     onEnterBalances: () => void;
+    onEditBalances: (date: string, values: Record<string, number>) => void;
 }
 
-export default function MainScreen({ accounts, balances, onNavigateToAccounts, onEnterBalances }: MainScreenProps) {
+export default function MainScreen({ accounts, balances, onNavigateToAccounts, onEnterBalances, onEditBalances }: MainScreenProps) {
     // Group balances by date
     const balancesByDate = balances.reduce((acc, balance) => {
         const date = balance.date.split('T')[0];
@@ -91,6 +94,7 @@ export default function MainScreen({ accounts, balances, onNavigateToAccounts, o
                                 </TableCell>
                             ))}
                             <TableCell align="right">Total</TableCell>
+                            <TableCell align="right">Actions</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -113,6 +117,14 @@ export default function MainScreen({ accounts, balances, onNavigateToAccounts, o
                                     ))}
                                     <TableCell align="right">
                                         {total.toFixed(2)}
+                                    </TableCell>
+                                    <TableCell align="right">
+                                        <IconButton
+                                            onClick={() => onEditBalances(date, rowBalances)}
+                                            size="small"
+                                        >
+                                            <EditIcon />
+                                        </IconButton>
                                     </TableCell>
                                 </TableRow>
                             );

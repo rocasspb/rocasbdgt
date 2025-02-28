@@ -16,11 +16,25 @@ interface EnterBalancesScreenProps {
     accounts: Account[];
     onSave: (balances: Balance[]) => void;
     onBack: () => void;
+    initialDate?: Date;
+    initialValues?: Record<string, number>;
 }
 
-export default function EnterBalancesScreen({ accounts, onSave, onBack }: EnterBalancesScreenProps) {
-    const [date, setDate] = useState<Date>(new Date());
-    const [values, setValues] = useState<Record<string, string>>({});
+export default function EnterBalancesScreen({ 
+    accounts, 
+    onSave, 
+    onBack,
+    initialDate,
+    initialValues = {}
+}: EnterBalancesScreenProps) {
+    const [date, setDate] = useState<Date>(initialDate || new Date());
+    const [values, setValues] = useState<Record<string, string>>(() => {
+        // Convert numbers to strings for input fields
+        return Object.entries(initialValues).reduce((acc, [key, value]) => {
+            acc[key] = value.toString();
+            return acc;
+        }, {} as Record<string, string>);
+    });
 
     const handleValueChange = (accountId: string, value: string) => {
         setValues(prev => ({
