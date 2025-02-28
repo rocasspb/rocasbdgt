@@ -8,7 +8,8 @@ import {
     ListItem, 
     ListItemText,
     ListItemSecondaryAction,
-    IconButton
+    IconButton,
+    Stack
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -16,18 +17,15 @@ import AddIcon from '@mui/icons-material/Add';
 import { Account } from '../types/Account';
 import AccountDialog from './AccountDialog';
 
-export default function AccountsScreen() {
-    const [accounts, setAccounts] = useState<Account[]>([]);
+interface AccountsScreenProps {
+    accounts: Account[];
+    setAccounts: (accounts: Account[]) => void;
+    onEnterBalances: () => void;
+}
+
+export default function AccountsScreen({ accounts, setAccounts, onEnterBalances }: AccountsScreenProps) {
     const [openDialog, setOpenDialog] = useState(false);
     const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
-
-    // Temporary mock data - replace with API call later
-    useEffect(() => {
-        setAccounts([
-            { id: '1', name: 'Main Account', currency: 'EUR' },
-            { id: '2', name: 'Savings', currency: 'EUR' },
-        ]);
-    }, []);
 
     const handleAddAccount = () => {
         setSelectedAccount(null);
@@ -67,29 +65,37 @@ export default function AccountsScreen() {
                 variant="contained"
                 startIcon={<AddIcon />}
                 onClick={handleAddAccount}
-                sx={{ mb: 4, width: '300px', py: 1.5 }}
+                sx={{ 
+                    mb: 4, 
+                    width: '100%', 
+                    py: 2,
+                    borderRadius: 3,
+                    fontSize: '1.1rem'
+                }}
             >
                 ADD ACCOUNT
             </Button>
 
-            <List sx={{ width: '100%' }}>
+            <List sx={{ width: '100%', mb: 4 }}>
                 {accounts.map((account) => (
                     <ListItem 
                         key={account.id}
                         sx={{ 
                             mb: 2,
                             bgcolor: 'background.paper',
-                            borderRadius: 1,
+                            borderRadius: 3,
                             boxShadow: 1,
-                            pr: 12 // Add padding for action buttons
+                            pr: 12,
+                            p: 3
                         }}
                     >
                         <ListItemText 
                             primary={account.name}
                             secondary={`Currency: ${account.currency}`}
                             primaryTypographyProps={{
-                                variant: 'h6',
-                                component: 'h2'
+                                variant: 'h5',
+                                component: 'h2',
+                                sx: { mb: 1 }
                             }}
                         />
                         <ListItemSecondaryAction>
@@ -112,6 +118,19 @@ export default function AccountsScreen() {
                     </ListItem>
                 ))}
             </List>
+
+            <Button
+                variant="contained"
+                onClick={onEnterBalances}
+                sx={{ 
+                    width: '100%', 
+                    py: 2,
+                    borderRadius: 3,
+                    fontSize: '1.1rem'
+                }}
+            >
+                ENTER BALANCES
+            </Button>
 
             <AccountDialog
                 open={openDialog}
