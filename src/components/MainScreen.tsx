@@ -12,6 +12,7 @@ import {
     TableRow,
     Stack
 } from '@mui/material';
+import { format } from 'date-fns';
 import { Account } from '../types/Account';
 import { Balance } from '../types/Balance';
 
@@ -34,7 +35,12 @@ export default function MainScreen({ accounts, balances, onNavigateToAccounts, o
     }, {} as Record<string, Record<string, number>>);
 
     // Sort dates in descending order
-    const dates = Object.keys(balancesByDate).sort((a, b) => b.localeCompare(a));
+    const dates = Object.keys(balancesByDate)
+        .sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+
+    const formatDate = (dateStr: string) => {
+        return format(new Date(dateStr), 'dd/MM/yyyy');
+    };
 
     return (
         <Container maxWidth="md" sx={{ py: 4 }}>
@@ -82,7 +88,7 @@ export default function MainScreen({ accounts, balances, onNavigateToAccounts, o
                             return (
                                 <TableRow key={date}>
                                     <TableCell component="th" scope="row">
-                                        {new Date(date).toLocaleDateString()}
+                                        {formatDate(date)}
                                     </TableCell>
                                     {accounts.map(account => (
                                         <TableCell key={account.id} align="right">

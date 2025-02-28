@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
     Container,
     Typography,
@@ -8,15 +8,17 @@ import {
     Paper
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { format } from 'date-fns';
 import { Account } from '../types/Account';
 import { Balance } from '../types/Balance';
 
 interface EnterBalancesScreenProps {
     accounts: Account[];
     onSave: (balances: Balance[]) => void;
+    onBack: () => void;
 }
 
-export default function EnterBalancesScreen({ accounts, onSave }: EnterBalancesScreenProps) {
+export default function EnterBalancesScreen({ accounts, onSave, onBack }: EnterBalancesScreenProps) {
     const [date, setDate] = useState<Date>(new Date());
     const [values, setValues] = useState<Record<string, string>>({});
 
@@ -42,20 +44,32 @@ export default function EnterBalancesScreen({ accounts, onSave }: EnterBalancesS
 
     return (
         <Container maxWidth="md" sx={{ py: 4 }}>
-            <Typography 
-                variant="h4" 
-                component="h1" 
-                gutterBottom 
+            <Stack 
+                direction="row" 
+                justifyContent="space-between" 
+                alignItems="center" 
                 sx={{ mb: 3 }}
             >
-                Enter Balances
-            </Typography>
+                <Typography 
+                    variant="h4" 
+                    component="h1"
+                >
+                    Enter Balances
+                </Typography>
+                <Button
+                    variant="outlined"
+                    onClick={onBack}
+                >
+                    BACK
+                </Button>
+            </Stack>
 
             <Paper sx={{ p: 3, mb: 3 }}>
                 <DatePicker
                     label="Date"
                     value={date}
                     onChange={(newDate: Date | null) => newDate && setDate(newDate)}
+                    format="dd/MM/yyyy"
                     sx={{ width: '100%', mb: 3 }}
                 />
 
